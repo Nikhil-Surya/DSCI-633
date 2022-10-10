@@ -109,4 +109,3 @@ class my_KMeans:
     def fit_transform(self, X):
         self.fit(X)
         return self.transform(X)
-
