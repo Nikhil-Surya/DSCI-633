@@ -76,6 +76,7 @@ class my_DT:
             right_n = node * 2 + 2
             c_pop = p[node]
             c_i_o = im_y[node]
+
             if len(c_pop) < self.min_samples_split or c_i_o == 0 or n_level:
                 self.tree[node] = Counter(labels[c_pop])
             else:

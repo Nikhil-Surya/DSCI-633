@@ -39,7 +39,3 @@ if __name__ == "__main__":
                 max_generation=10, max_life=2)
     best = ga2.tune()
     print(ga2.evaluate(best[0]))
-
-
-
-

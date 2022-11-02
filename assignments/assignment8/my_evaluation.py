@@ -56,7 +56,7 @@ class my_evaluation:
             if tp+fp == 0:
                 rec = 0
             else:
-                rec = float(tp) / (tp + fp)
+                rec = float(tp) / (tp+fp)
         else:
             if average == "micro":
                 rec = self.accuracy()
@@ -66,10 +66,10 @@ class my_evaluation:
                 for label in self.classes_:
                     tp = self.confusion_matrix[label]["TP"]
                     fp = self.confusion_matrix[label]["FP"]
-                    if tp + fp == 0:
+                    if tp+fp == 0:
                         rec_label = 0
                     else:
-                        rec_label = float(tp) / (tp + fp)
+                        rec_label = float(tp) / (tp+fp)
                     if average == "macro":
                         ratio = 1 / len(self.classes_)
                     elif average == "weighted":
@@ -90,7 +90,7 @@ class my_evaluation:
         if target in self.classes_:
             tp = self.confusion_matrix[target]["TP"]
             fn = self.confusion_matrix[target]["FN"]
-            if tp +fn == 0:
+            if tp+fn == 0:
                 rec = 0
             else :
                 rec = float(tp) / (tp + fn)
@@ -122,12 +122,32 @@ class my_evaluation:
         # target: target class (str). If not None, then return f1 of target class
         # average: {"macro", "micro", "weighted"}. If target==None, return average f1
         # output: f1 = float
+        if target :
 
-            prec = self.precision(target = target, average=average)
-            rec = self.recall(target = target, average=average)
-            f1_score = 2.0 * prec * rec / (prec + rec)
+            prec = self.precision(target=target, average=average)
+            rec = self.recall(target=target, average=average)
+            if prec + rec == 0:
+                f1_score = 0
+            else:
+                f1_score = 2.0 * prec * rec / (prec + rec)
 
-
+        else:
+            if average == "micro":
+                f1_score = self.accuracy()
+            else:
+                f1_score =0
+                for label in self.classes_:
+                    prec = self.precision(target=label, average=average)
+                    rec = self.recall(target=label, average=average)
+                    if prec + rec == 0:
+                        f1 = 0
+                    else:
+                        f1 = 2.0 * prec * rec / (prec + rec)
+                    if average == "macro":
+                        ratio = 1 / len(self.classes_)
+                    elif average == "weighted":
+                        ratio = Counter(self.actuals)[label] / float(len(self.actuals))
+                    f1_score += f1 * ratio
             return f1_score
 
     def auc(self, target):
