@@ -1,9 +1,13 @@
 import pandas as pd
 import time
+from sklearn.model_selection import GridSearchCV
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.linear_model import PassiveAggressiveClassifier, LogisticRegression
 from sklearn.linear_model import SGDClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 
 
 def cleanup(feat):
@@ -20,14 +24,26 @@ class my_model:
     def __init__(self):
         # defines the self function used in fit and predict
         self.preprocessor = CountVectorizer(stop_words='english', max_df=.7)
-        #P = CountVectorizer(stop_words='english', min_df=.03, max_df=.8)
-        #RandomForestClassifier gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.743351)
-        #self.clf = RandomForestClassifier(n_estimators=100, class_weight= "balanced", random_state=45)
-        #SGDClassifier gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.758242)
-        #self.clf = SGDClassifier(class_weight="balanced", max_iter=3000, random_state=45)
-        #PassiveAggressiveClassifier gives highest f1 score of 0.766467
+        # PassiveAggressiveClassifier gives highest f1 score of 0.766467
         self.clf = PassiveAggressiveClassifier(C=0.1, fit_intercept=True, n_iter_no_change=10, validation_fraction=0.8)
 
+
+        # LogisticRegression gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.390625)
+        # self.clf = LogisticRegression(solver='liblinear', random_state=0)
+
+        #RandomForestClassifier gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.743351)
+        #self.clf = RandomForestClassifier(n_estimators=100, class_weight= "balanced", random_state=45)
+
+        #SGDClassifier gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.758242)
+        #self.clf = SGDClassifier(class_weight="balanced", max_iter=3000, random_state=45)
+
+        #KNeighborsClassifier(with neighbors = 1) gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.706468)
+        #self.clf = KNeighborsClassifier(n_neighbors=1)
+
+        #SVC gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.598639)
+        #self.clf = SVC(kernel='rbf')
+
+        
     def fit(self, X, y):
         # do not exceed 29 mins
         X_df = train_test(X)
