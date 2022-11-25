@@ -31,8 +31,6 @@ class my_model:
         #TfidfVectorizer gives F1 score 0.741176 with PassiveAggressiveClassifier which is the the maximum
         #self.preprocessor = TfidfVectorizer(stop_words='english', norm='l2', use_idf=False, smooth_idf=False)
 
-        # PassiveAggressiveClassifier gives highest f1 score of 0.766467
-        self.clf = PassiveAggressiveClassifier(C=0.1, fit_intercept=True, n_iter_no_change=10, validation_fraction=0.8)
 
         # LogisticRegression gives lower F1 score than PassiveAggressiveClassifier (F1 score: 0.390625)
         #self.clf = LogisticRegression(solver='liblinear', random_state=0)
