@@ -15,31 +15,40 @@ class my_NB:
     def fit(self, X, y):
         # X: pd.DataFrame, independent variables, str
         # y: list, np.array or pd.Series, dependent variables, int or str
-        # list of classes for this model
+
+        # instantiate self.classes_
         self.classes_ = list(set(list(y)))
-        # for calculation of P(y)
+        # instantiate self.P_y
         self.P_y = Counter(y)
-        # Counts how many times the items appear. self.P[yj][Xi][xi] = P(xi|yj) where Xi is the feature name and xi
-        # is the feature value, yj is a specific class label make sure to use self.alpha in the __init__() function
-        # as the smoothing factor when calculating P(xi|yj)
-        self.P = {}
-        # Created a dictionary
-        for r in range(X.shape[0]):
-            yj = y[r]
-            for Xi in range(69):
-                # total number of columns is 69
-                xi = X.loc[r, Xi]
-                if (yj, Xi, xi) in self.P.keys():
-                    self.P[yj, Xi, xi] = self.P[yj, Xi, xi] + 1
-                else:
-                    self.P[yj, Xi, xi] = 1
 
-        # find probability using formula P(xi = t | y = c) = (N(t,c) + alpha) / (N(c) + n(i)*alpha
-        for yj, Xi, xi in self.P.keys():
-            length = len(set(list(X.loc[:, Xi])))
-            self.P[yj, Xi, xi] = (self.P[yj, Xi, xi] + self.alpha) / (self.P_y[yj] + length * self.alpha)
+        features = [feature for feature in X]
+        feature_values = [X[feature].unique() for feature in features]
+        feature_probabilities = dict()
+        labels = [label for label in self.classes_]
 
-        return
+        for label in labels:
+            number_of_occurences_of_label = Counter(y)[label]
+            feature_attribute_probability_value = dict()
+            for feature in range(0, len(feature_values)):
+                # number of rows
+                all_possible_feature_values = feature_values[feature]
+                feature_attribute_probability_value[feature] = dict()
+                number_of_each_possible_value = Counter(X[feature])
+
+                for feat_val in all_possible_feature_values:
+                    feature_attribute_probability_value[feature][feat_val] = dict()
+                    feat_prob = (sum(
+                                        [feat_val == X[feature][entry] and y[entry] == label for entry in range(len(X[feature]))]
+                                    ) + self.alpha
+                                ) / ( number_of_occurences_of_label +
+                                    (len(number_of_each_possible_value.keys()) * self.alpha)
+                                )
+
+                    feature_attribute_probability_value[feature][feat_val] = feat_prob
+
+            feature_probabilities[label] = feature_attribute_probability_value
+
+        self.P = feature_probabilities
 
     def predict_proba(self, X):
         # X: pd.DataFrame, independent variables, str
@@ -50,8 +59,7 @@ class my_NB:
         for label in self.classes_:
             p = self.P_y[label]
             for key in X:
-                p *= X[key].apply(
-                    lambda value: self.P[label, key, value] if (label, key, value) in self.P.keys() else 1)
+                p *= X[key].apply(lambda value: self.P[label][key][value] if value in self.P[label][key] else 1)
             probs[label] = p
         probs = pd.DataFrame(probs, columns=self.classes_)
         sums = probs.sum(axis=1)
@@ -64,5 +72,4 @@ class my_NB:
         # write your code below
         probs = self.predict_proba(X)
         predictions = [self.classes_[np.argmax(prob)] for prob in probs.to_numpy()]
-        # convert dataframe to numpy array
         return predictions
